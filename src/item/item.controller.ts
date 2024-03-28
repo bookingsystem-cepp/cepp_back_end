@@ -13,6 +13,11 @@ export class ItemController {
     return await this.itemService.findAll();
   }
 
+  @Get('get-by-owner/:id')
+  async findByOwner(@Param('id') id:string): Promise<Item[]>{
+    return await this.itemService.findByOwner(id);
+  }
+
   @Get('get-by-category/:id')
   async findByCategory(@Param('id') id:string): Promise<Item[]>{
     return await this.itemService.findByCategory(id);
@@ -29,7 +34,7 @@ export class ItemController {
   }
 
   @Put('update')
-  async update(item: UpdateItemDto): Promise<Item>{
+  async update(@Body() item: UpdateItemDto): Promise<Item>{
     return await this.itemService.update(item);
   }
 }

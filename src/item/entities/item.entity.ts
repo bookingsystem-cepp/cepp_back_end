@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 import { Category } from "src/category/entities/category.entity";
+import { User } from "src/user/entities/user.entity";
 
 @Schema({
     timestamps:false
@@ -28,6 +29,9 @@ export class Item {
 
     @Prop({required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Category'})
     category: Category;
+
+    @Prop({required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User'})
+    owner: User;
 }
 
 export const ItemSchema = SchemaFactory.createForClass(Item);

@@ -31,6 +31,10 @@ export class ItemService {
     return item;
   }
 
+  async findByOwner(id: string): Promise<Item[]>{
+    return await this.ItemModel.find({owner: id}).sort({category: 1});
+  }
+
   async getOwner(id: string): Promise<User>{
     const item = await this.ItemModel.findById(id).populate({ path: 'category',select:'owner'});
     if(!item){
@@ -45,7 +49,8 @@ export class ItemService {
       return await this.ItemModel.create({
         ...item,
         category: category,
-        avaliable: item.amount
+        avaliable: item.amount,
+        owner: category.owner
       });
     }
     catch(err){
@@ -60,17 +65,22 @@ export class ItemService {
         throw new HttpException('Item Not Found',HttpStatus.NOT_FOUND);
       }
       const dif = item.amount - originalItem.amount;
+      let avaliable = originalItem.avaliable + dif
+      if(originalItem.avaliable - dif < 0){
+        avaliable=0
+      }
       
       return await this.ItemModel.findOneAndUpdate(
         { _id: item.id },
         { $set: {
           ...item, 
-          avaliable: originalItem.avaliable - dif ? originalItem.avaliable - dif >= 0 : 0
+          avaliable: avaliable
         }},
         { new: true, runValidators: true }
       )
     }
     catch(err){
+      console.log(err.message)
       throw new HttpException('Error to update item: '+err.message,HttpStatus.BAD_REQUEST);
     }
   }

@@ -6,10 +6,7 @@ export class UpdateUserDto  {
     readonly id: string
 
     @IsString()
-    readonly firstname: string
-
-    @IsString()
-    readonly lastname: string
+    readonly username: string
 
     @IsString()
     @Matches(/[0-9]{10}/)
