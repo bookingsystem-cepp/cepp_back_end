@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { CategoryService } from 'src/category/category.service';
 import { UpdateItemDto } from './dto/update-item.dto';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class ItemService {
@@ -28,6 +29,14 @@ export class ItemService {
       throw new HttpException('Item Not Found',HttpStatus.NOT_FOUND);
     }
     return item;
+  }
+
+  async getOwner(id: string): Promise<User>{
+    const item = await this.ItemModel.findById(id).populate({ path: 'category',select:'owner'});
+    if(!item){
+      throw new HttpException('Item Not Found',HttpStatus.NOT_FOUND);
+    }
+    return item.category.owner
   }
 
   async create(item: CreateItemDto): Promise<Item>{
@@ -65,4 +74,24 @@ export class ItemService {
       throw new HttpException('Error to update item: '+err.message,HttpStatus.BAD_REQUEST);
     }
   }
+
+  async updateAvailable(id: string,count: number): Promise<Item>{
+    try{
+      const item = await this.ItemModel.findById(id);
+      if(item.avaliable + count < 0){
+        throw new HttpException('No item To Borrow',HttpStatus.BAD_REQUEST);
+      }
+      else if(item.avaliable + count > item.amount){
+        throw new HttpException('Available more than Amount',HttpStatus.BAD_REQUEST);
+      }
+      return await this.ItemModel.findOneAndUpdate(
+        { _id: item._id },
+        { $set: { avaliable: item.avaliable + count}},
+        { new: true, runValidators: true }
+      )
+    }
+    catch(err){
+      throw new HttpException('Error to update available: '+err.message,err.status);
+    }
+  } 
 }
