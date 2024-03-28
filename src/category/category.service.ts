@@ -15,7 +15,7 @@ export class CategoryService {
   ){}
 
   async findAll(): Promise<Category[]>{
-    return await this.CategoryModel.find();
+    return await this.CategoryModel.find().populate({path: 'owner', select: 'firstname'});
   }
 
   async findByOwner(id:string): Promise<Category[]>{

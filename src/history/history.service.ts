@@ -20,14 +20,14 @@ export class HistoryService {
   }
 
   async findByOwner(userId: string): Promise<History[]>{
-    const pending = await this.historyModel.find({owner: userId, status: 'pending'}).populate({path: 'item', select: 'title'});
-    const rest = await this.historyModel.find({owner: userId, status: {$in: ['using', 'return']}}).sort({status: -1});
+    const pending = await this.historyModel.find({owner: userId, status: 'pending'}).populate({path: 'item', select: 'title'}).populate({path: 'borrower', select: 'email'});
+    const rest = await this.historyModel.find({owner: userId, status: {$in: ['using', 'return']}}).populate({path: 'item', select: 'title'}).populate({path: 'borrower', select: 'email'}).sort({status: -1});
     return pending.concat(rest);
   }
 
   async findByBorrower(userId: string): Promise<History[]>{
-    const pending = await this.historyModel.find({borrower: userId, status: 'pending'});
-    const rest = await this.historyModel.find({borrower: userId, status: {$in: ['using', 'return']}}).sort({status: -1});
+    const pending = await this.historyModel.find({borrower: userId, status: 'pending'}).populate({path: 'item', select: 'title'});
+    const rest = await this.historyModel.find({borrower: userId, status: {$in: ['using', 'return']}}).populate({path: 'item', select: 'title'}).sort({status: -1});
     return pending.concat(rest);
   }
 
