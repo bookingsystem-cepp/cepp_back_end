@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
 import mongoose from 'mongoose';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -24,5 +25,18 @@ export class UserService {
 
   async findUserByEmail(email: string): Promise<User> {
     return await this.UserModel.findOne({email: email})
+  }
+
+  async update(user: UpdateUserDto): Promise<User>{
+    try{
+      return await this.UserModel.findOneAndUpdate(
+        { _id: user.id },
+        { $set: user },
+        { new: true, runValidators: true } 
+      )
+    }
+    catch(err){
+      throw new HttpException('Error to update user: '+err.message,err.stataus);
+    }
   }
 }
