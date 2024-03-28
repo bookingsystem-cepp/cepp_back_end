@@ -20,7 +20,7 @@ export class HistoryService {
   }
 
   async findByOwner(userId: string): Promise<History[]>{
-    const pending = await this.historyModel.find({owner: userId, status: 'pending'});
+    const pending = await this.historyModel.find({owner: userId, status: 'pending'}).populate({path: 'item', select: 'title'});
     const rest = await this.historyModel.find({owner: userId, status: {$in: ['using', 'return']}}).sort({status: -1});
     return pending.concat(rest);
   }

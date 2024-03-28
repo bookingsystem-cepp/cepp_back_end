@@ -18,7 +18,7 @@ export class UserController {
   }
 
   @Put('edit')
-  async edit(user: UpdateUserDto): Promise<User>{
+  async edit(@Body() user: UpdateUserDto): Promise<User>{
     return await this.userService.update(user);
   }
 }
