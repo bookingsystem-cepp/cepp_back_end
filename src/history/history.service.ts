@@ -79,7 +79,7 @@ export class HistoryService {
     }
   }
   
-  async returning(id: string): Promise<History>{
+  async returning(id: string){
     try{
       const history = await this.historyModel.findById(id);
       if(!history){
@@ -95,8 +95,12 @@ export class HistoryService {
       ).populate({ path: 'item' })
       newHistory.item = await this.itemService.updateAvailable(history.item._id.toString(),newHistory.count);
       const today = new Date()
-      if(today > newHistory.endDate){
-        await this.userService.updateScore(newHistory.borrower._id.toString(),-5);
+      const startMilliseconds = today.getTime();
+      const endMilliseconds = newHistory.endDate.getTime();
+      const differenceMilliseconds = endMilliseconds - startMilliseconds;
+      const daysDifference = Math.ceil(differenceMilliseconds / (1000 * 60 * 60 * 24));
+      if(differenceMilliseconds<0){
+        await this.userService.updateScore(newHistory.borrower._id.toString(),-5*daysDifference);
       }
       else{
         await this.userService.updateScore(newHistory.borrower._id.toString(),1);
