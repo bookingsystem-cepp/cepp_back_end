@@ -39,4 +39,28 @@ export class UserService {
       throw new HttpException('Error to update user: '+err.message,err.stataus);
     }
   }
+
+  async updateScore(id: string, count: number): Promise<User>{
+    try{
+        const user = await this.UserModel.findById(id)
+        if(!user){
+          throw new HttpException('User Not Found',HttpStatus.NOT_FOUND);
+        }
+        let newScore = user.scores+count
+        if(newScore > 100){
+          newScore = 100
+        }
+        else if(newScore < 0){
+          newScore = 0
+        }
+        return await this.UserModel.findOneAndUpdate(
+          { _id: user.id },
+          { $set: { scores: newScore }},
+          { new: true, runValidators: true }
+        )
+    }
+    catch(err){
+      throw new HttpException('Error to update score: '+err.message,err.status);
+    }
+  }
 }

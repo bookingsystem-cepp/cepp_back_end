@@ -94,6 +94,13 @@ export class HistoryService {
         { new: true, runValidators: true }
       ).populate({ path: 'item' })
       newHistory.item = await this.itemService.updateAvailable(history.item._id.toString(),newHistory.count);
+      const today = new Date()
+      if(today > newHistory.endDate){
+        await this.userService.updateScore(newHistory.borrower._id.toString(),-5);
+      }
+      else{
+        await this.userService.updateScore(newHistory.borrower._id.toString(),1);
+      }
       return newHistory;
     }
     catch(err){
