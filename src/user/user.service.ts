@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
 import mongoose from 'mongoose';
@@ -15,7 +15,11 @@ export class UserService {
   }
 
   async findUserById(userId: string): Promise<User> {
-    return await this.UserModel.findById(userId)
+    const user = await this.UserModel.findById(userId)
+    if(!user){
+      throw new HttpException('User Not Found: '+userId,HttpStatus.NOT_FOUND);
+    }
+    return user;
   }
 
   async findUserByEmail(email: string): Promise<User> {

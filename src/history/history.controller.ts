@@ -2,6 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { HistoryService } from './history.service';
 import { History } from './entities/history.entity';
 import { CreateHistoryDto } from './dto/create-history.dto';
+import { ApproveDTO } from './dto/approve.dto';
+import { ReturnDTO } from './dto/return.dto';
 
 @Controller('history')
 export class HistoryController {
@@ -12,8 +14,23 @@ export class HistoryController {
     return await this.historyService.findAll();
   }
 
+  @Get('get-by-owner/:id')
+  async findByOwner(@Param('id') userId: string): Promise<History[]>{
+    return await this.historyService.findByOwner(userId);
+  }
+
   @Post('create')
-  async create(history: CreateHistoryDto): Promise<History>{
+  async create(@Body() history: CreateHistoryDto): Promise<History>{
     return await this.historyService.create(history);
+  }
+
+  @Post('approve')
+  async approve(@Body() approve: ApproveDTO): Promise<History>{
+    return await this.historyService.approve(approve.historyId);
+  }
+
+  @Post('returning')
+  async returning(@Body() returned: ReturnDTO): Promise<History>{
+    return await this.historyService.returning(returned.historyId);
   }
 }
