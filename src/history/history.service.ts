@@ -25,6 +25,12 @@ export class HistoryService {
     return pending.concat(rest);
   }
 
+  async findByBorrower(userId: string): Promise<History[]>{
+    const pending = await this.historyModel.find({borrower: userId, status: 'pending'});
+    const rest = await this.historyModel.find({borrower: userId, status: {$in: ['using', 'return']}}).sort({status: -1});
+    return pending.concat(rest);
+  }
+
   async create(history: CreateHistoryDto): Promise<History>{
     try{
       const item = await this.itemService.findById(history.itemId);

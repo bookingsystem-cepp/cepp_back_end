@@ -19,6 +19,11 @@ export class HistoryController {
     return await this.historyService.findByOwner(userId);
   }
 
+  @Get('get-by-borrower/:id')
+  async findByBorrower(@Param('id') userId: string): Promise<History[]>{
+    return await this.historyService.findByBorrower(userId);
+  }
+
   @Post('create')
   async create(@Body() history: CreateHistoryDto): Promise<History>{
     return await this.historyService.create(history);
