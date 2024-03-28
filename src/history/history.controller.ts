@@ -35,7 +35,7 @@ export class HistoryController {
   }
 
   @Post('returning')
-  async returning(@Body() returned: ReturnDTO): Promise<History>{
+  async returning(@Body() returned: ReturnDTO){
     return await this.historyService.returning(returned.historyId);
   }
 }
