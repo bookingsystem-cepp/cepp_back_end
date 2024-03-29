@@ -37,4 +37,9 @@ export class ItemController {
   async update(@Body() item: UpdateItemDto): Promise<Item>{
     return await this.itemService.update(item);
   }
+
+  @Delete('delete/:id')
+  async delete(@Param('id') id: string){
+    return await this.itemService.delete(id);
+  }
 }

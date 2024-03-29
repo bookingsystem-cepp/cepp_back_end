@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateItemDto } from './dto/create-item.dto';
 import { Item } from './entities/item.entity';
 import { InjectModel } from '@nestjs/mongoose';
@@ -6,12 +6,16 @@ import mongoose from 'mongoose';
 import { CategoryService } from 'src/category/category.service';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { User } from 'src/user/entities/user.entity';
+import { HistoryService } from 'src/history/history.service';
 
 @Injectable()
 export class ItemService {
   constructor(
     @InjectModel(Item.name)
     private ItemModel: mongoose.Model<Item>,
+    @Inject(forwardRef(()=>HistoryService))
+    private readonly historyService: HistoryService,
+    @Inject(forwardRef(()=>CategoryService))
     private readonly categoryService: CategoryService,
   ){}
 
@@ -103,5 +107,15 @@ export class ItemService {
     catch(err){
       throw new HttpException('Error to update available: '+err.message,err.status);
     }
-  } 
+  }
+
+  async delete(id: string){
+    try{
+      await this.historyService.deleteItem(id);
+      return await this.ItemModel.deleteOne({_id:id});
+    }
+    catch(err){
+      throw new HttpException('Error to delete item: '+err.message,err.status)
+    }
+  }
 }

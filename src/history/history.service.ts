@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateHistoryDto } from './dto/create-history.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { History } from './entities/history.entity';
@@ -12,6 +12,7 @@ export class HistoryService {
     @InjectModel(History.name)
     private historyModel: mongoose.Model<History>,
     private userService: UserService,
+    @Inject(forwardRef(()=>ItemService))
     private itemService: ItemService,
   ){}
 
@@ -109,6 +110,19 @@ export class HistoryService {
     }
     catch(err){
       throw new HttpException('Error to returning an item: '+err.message,err.status);
+    }
+  }
+
+  async deleteItem(id: string){
+    try{
+      const history = await this.historyModel.find({item: id,status: {$in: ['using', 'pending']}})
+      if(history.length>0){
+        throw new HttpException('Cannot Delete history with in transaction',HttpStatus.BAD_REQUEST);
+      }
+      return await this.historyModel.deleteMany({item: id});
+    }
+    catch(err){
+      throw new HttpException('Error to delete History in an item: '+err.message,err.status)
     }
   }
 }

@@ -1,16 +1,19 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Category } from './entities/category.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UserService } from 'src/user/user.service';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ItemService } from 'src/item/item.service';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectModel(Category.name)
     private CategoryModel: mongoose.Model<Category>,
+    @Inject(forwardRef(()=>ItemService))
+    private readonly itemService: ItemService,
     private readonly userService: UserService,
   ){}
 
@@ -61,6 +64,18 @@ export class CategoryService {
     }
     catch(err){
       throw new HttpException('Error to Update category: '+err.message,HttpStatus.BAD_REQUEST)
+    }
+  }
+  async delete(id:string){
+    try{
+      const item = await this.itemService.findByCategory(id);
+      if(item.length>0){
+        throw new HttpException('Cannot delete category that have any items',HttpStatus.BAD_REQUEST)
+      }
+      return await this.CategoryModel.deleteOne({_id:id})
+    }
+    catch(err){
+      throw new HttpException('Error to delete category: '+err.message,err.status)
     }
   }
 }
